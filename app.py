@@ -13,10 +13,47 @@ MAX_IMAGE_SIZE = 2048
 
 pipe = FluxFillPipeline.from_pretrained("black-forest-labs/FLUX.1-Fill-dev", torch_dtype=torch.bfloat16, revision="refs/pr/4").to("cuda")
 
+def calculate_optimal_dimensions(image: Image.Image):
+    # Extract the original dimensions
+    original_width, original_height = image.size
+    
+    # Set constants
+    MIN_ASPECT_RATIO = 9 / 16
+    MAX_ASPECT_RATIO = 16 / 9
+    FIXED_DIMENSION = 1024
+
+    # Calculate the aspect ratio of the original image
+    original_aspect_ratio = original_width / original_height
+
+    # Determine which dimension to fix
+    if original_aspect_ratio > 1:  # Wider than tall
+        width = FIXED_DIMENSION
+        height = round(FIXED_DIMENSION / original_aspect_ratio)
+    else:  # Taller than wide
+        height = FIXED_DIMENSION
+        width = round(FIXED_DIMENSION * original_aspect_ratio)
+
+    # Ensure dimensions are multiples of 8
+    width = (width // 8) * 8
+    height = (height // 8) * 8
+
+    # Enforce aspect ratio limits
+    calculated_aspect_ratio = width / height
+    if calculated_aspect_ratio > MAX_ASPECT_RATIO:
+        width = (height * MAX_ASPECT_RATIO // 8) * 8
+    elif calculated_aspect_ratio < MIN_ASPECT_RATIO:
+        height = (width / MIN_ASPECT_RATIO // 8) * 8
+
+    # Ensure width and height remain above the minimum dimensions
+    width = max(width, 576) if width == FIXED_DIMENSION else width
+    height = max(height, 576) if height == FIXED_DIMENSION else height
+
+    return width, height
+
 @spaces.GPU
 def infer(edit_images, prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidance_scale=3.5, num_inference_steps=28, progress=gr.Progress(track_tqdm=True)):
-    print(edit_images)
     image = edit_images["background"]
+    width, height = calculate_optimal_dimensions(image)
     mask = edit_images["layers"][0]
     if randomize_seed:
         seed = random.randint(0, MAX_SEED)
@@ -41,7 +78,7 @@ examples = [
 css="""
 #col-container {
     margin: 0 auto;
-    max-width: 960px;
+    max-width: 1000px;
 }
 """
 
@@ -70,7 +107,7 @@ with gr.Blocks(css=css) as demo:
                     placeholder="Enter your prompt",
                     container=False,
                 )
-                run_button = gr.Button("Run", scale=0)
+                run_button = gr.Button("Run")
                 
             result = gr.Image(label="Result", show_label=False)
         
@@ -94,6 +131,7 @@ with gr.Blocks(css=css) as demo:
                     maximum=MAX_IMAGE_SIZE,
                     step=32,
                     value=1024,
+                    visible=False
                 )
                 
                 height = gr.Slider(
@@ -102,6 +140,7 @@ with gr.Blocks(css=css) as demo:
                     maximum=MAX_IMAGE_SIZE,
                     step=32,
                     value=1024,
+                    visible=False
                 )
             
             with gr.Row():
