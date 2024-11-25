@@ -39,7 +39,7 @@ examples = [
 css="""
 #col-container {
     margin: 0 auto;
-    max-width: 520px;
+    max-width: 960px;
 }
 """
 
