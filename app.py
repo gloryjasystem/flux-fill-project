@@ -7,6 +7,8 @@ import spaces
 import random 
 
 from diffusers import FluxFillPipeline
+from PIL import Image
+
 
 MAX_SEED = np.iinfo(np.int32).max
 MAX_IMAGE_SIZE = 2048
