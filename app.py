@@ -14,8 +14,8 @@ pipe = FluxFillPipeline.from_pretrained("black-forest-labs/FLUX.1-Fill-dev", tor
 @spaces.GPU
 def infer(edit_images, prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidance_scale=3.5, num_inference_steps=28, progress=gr.Progress(track_tqdm=True)):
     print(edit_images)
-    image = edit_images["image"]
-    mask = edit_images["mask"]
+    image = edit_images["background"]
+    mask = edit_images["layers"][0]
     if randomize_seed:
         seed = random.randint(0, MAX_SEED)
     image = pipe(
@@ -58,7 +58,8 @@ with gr.Blocks(css=css) as demo:
                     sources=["upload", "webcam"],
                     image_mode='RGB',
                     layers=False,
-                    brush=gr.Brush(colors=["#FFFFFF"], color_mode="fixed")
+                    brush=gr.Brush(colors=["#FFFFFF"], color_mode="fixed"),
+                    height=750
                 )
                 prompt = gr.Text(
                     label="Prompt",
@@ -69,7 +70,7 @@ with gr.Blocks(css=css) as demo:
                 )
                 run_button = gr.Button("Run", scale=0)
                 
-        result = gr.Image(label="Result", show_label=False)
+            result = gr.Image(label="Result", show_label=False)
         
         with gr.Accordion("Advanced Settings", open=False):
             
