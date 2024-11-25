@@ -13,8 +13,9 @@ pipe = FluxFillPipeline.from_pretrained("black-forest-labs/FLUX.1-Fill-dev", tor
 
 @spaces.GPU
 def infer(edit_images, prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidance_scale=3.5, num_inference_steps=28, progress=gr.Progress(track_tqdm=True)):
-    image = edit_images[0]
-    mask = edit_images[1]
+    print(edit_images)
+    image = edit_images["image"]
+    mask = edit_images["mask"]
     if randomize_seed:
         seed = random.randint(0, MAX_SEED)
     image = pipe(
@@ -49,26 +50,25 @@ with gr.Blocks(css=css) as demo:
 12B param rectified flow transformer structural conditioning tuned, guidance-distilled from [FLUX.1 [pro]](https://blackforestlabs.ai/)  
 [[non-commercial license](https://huggingface.co/black-forest-labs/FLUX.1-dev/blob/main/LICENSE.md)] [[blog](https://blackforestlabs.ai/announcing-black-forest-labs/)] [[model](https://huggingface.co/black-forest-labs/FLUX.1-dev)]
         """)
-
-        edit_image = gr.ImageEditor(
-                label='Upload and draw mask for inpainting',
-                type='pil',
-                sources=["upload", "webcam"],
-                image_mode='RGB',
-                layers=False,
-                brush=gr.Brush(colors=["#FFFFFF"], color_mode="fixed"))
         with gr.Row():
-            
-            prompt = gr.Text(
-                label="Prompt",
-                show_label=False,
-                max_lines=1,
-                placeholder="Enter your prompt",
-                container=False,
-            )
-            
-            run_button = gr.Button("Run", scale=0)
-        
+            with gr.Column():
+                edit_image = gr.ImageEditor(
+                    label='Upload and draw mask for inpainting',
+                    type='pil',
+                    sources=["upload", "webcam"],
+                    image_mode='RGB',
+                    layers=False,
+                    brush=gr.Brush(colors=["#FFFFFF"], color_mode="fixed")
+                )
+                prompt = gr.Text(
+                    label="Prompt",
+                    show_label=False,
+                    max_lines=1,
+                    placeholder="Enter your prompt",
+                    container=False,
+                )
+                run_button = gr.Button("Run", scale=0)
+                
         result = gr.Image(label="Result", show_label=False)
         
         with gr.Accordion("Advanced Settings", open=False):
