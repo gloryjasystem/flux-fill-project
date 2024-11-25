@@ -63,8 +63,8 @@ def infer(edit_images, prompt, seed=42, randomize_seed=False, width=1024, height
         prompt=prompt,
         image=image,
         mask_image=mask,
-        height=width,
-        width=height,
+        height=height,
+        width=width,
         guidance_scale=guidance_scale,
         num_inference_steps=num_inference_steps,
         generator=torch.Generator("cpu").manual_seed(seed)
