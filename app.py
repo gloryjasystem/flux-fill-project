@@ -11,6 +11,7 @@ MAX_IMAGE_SIZE = 2048
 
 pipe = FluxFillPipeline.from_pretrained("black-forest-labs/FLUX.1-Fill-dev", torch_dtype=torch.bfloat16, revision="refs/pr/4").to("cuda")
 
+@spaces.GPU
 def infer(edit_images, prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidance_scale=3.5, num_inference_steps=28, progress=gr.Progress(track_tqdm=True)):
     image = edit_images[0]
     mask = edit_images[1]
