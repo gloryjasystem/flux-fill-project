@@ -4,6 +4,7 @@ import numpy as np
 import spaces
 import torch
 import spaces
+import random 
 
 from diffusers import FluxFillPipeline
 
