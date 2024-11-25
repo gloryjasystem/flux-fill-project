@@ -3,6 +3,7 @@ import numpy as np
 
 import spaces
 import torch
+import spaces
 
 from diffusers import FluxFillPipeline
 
@@ -59,7 +60,7 @@ with gr.Blocks(css=css) as demo:
                     image_mode='RGB',
                     layers=False,
                     brush=gr.Brush(colors=["#FFFFFF"], color_mode="fixed"),
-                    height=750
+                    height=600
                 )
                 prompt = gr.Text(
                     label="Prompt",
