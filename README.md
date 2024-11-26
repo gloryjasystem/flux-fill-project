@@ -1,6 +1,6 @@
 ---
 title: FLUX.1 Fill Dev
-emoji: ⚡
+emoji: 🖌️
 colorFrom: green
 colorTo: purple
 sdk: gradio
